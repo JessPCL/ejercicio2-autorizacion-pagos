@@ -1,0 +1,18 @@
+# Java/Spring Boot
+target/
+*.class
+*.jar
+*.war
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.eclipse
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Docker y Entorno
+.env

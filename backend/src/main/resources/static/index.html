@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooperativa - Autorización de Pagos</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #0056b3; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #004494; }
+        #resultado { margin-top: 20px; padding: 10px; border-radius: 4px; display: none; }
+    </style>
+</head>
+<body>
+
+    <h2>Enviar Pago</h2>
+    <div class="form-group">
+        <label for="cuentaDestino">Cuenta Destino:</label>
+        <input type="text" id="cuentaDestino" placeholder="Ej. 1234567890" required>
+    </div>
+    <div class="form-group">
+        <label for="monto">Monto ($):</label>
+        <input type="number" id="monto" step="0.01" placeholder="Ej. 50.00" required>
+    </div>
+    <button onclick="enviarPago()">Autorizar Pago</button>
+
+    <div id="resultado"></div>
+
+    <script>
+        async function enviarPago() {
+            const cuenta = document.getElementById('cuentaDestino').value;
+            const monto = document.getElementById('monto').value;
+            const resultadoDiv = document.getElementById('resultado');
+            
+            // Generamos una clave de idempotencia única para este intento de pago
+            const idempotencyKey = crypto.randomUUID();
+
+            const payload = {
+                cuentaDestino: cuenta,
+                monto: parseFloat(monto)
+            };
+
+            try {
+                const response = await fetch('/api/v1/pagos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Idempotency-Key': idempotencyKey // Evita cobros dobles si el usuario hace doble clic
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                
+                resultadoDiv.style.display = 'block';
+                if (response.ok) {
+                    resultadoDiv.style.backgroundColor = '#d4edda';
+                    resultadoDiv.innerHTML = `<strong>Éxito:</strong> Pago procesado. ID: ${data.pagoId}`;
+                } else {
+                    resultadoDiv.style.backgroundColor = '#f8d7da';
+                    resultadoDiv.innerHTML = `<strong>Error:</strong> ${data.mensaje}`;
+                }
+            } catch (error) {
+                resultadoDiv.style.display = 'block';
+                resultadoDiv.style.backgroundColor = '#f8d7da';
+                resultadoDiv.innerHTML = `<strong>Error de conexión.</strong> El sistema registrará el intento.`;
+            }
+        }
+    </script>
+</body>
+</html>

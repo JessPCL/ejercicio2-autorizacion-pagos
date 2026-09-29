@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    # Estas variables serán reemplazadas por el docker-compose
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/pagos_db}
+    username: ${SPRING_DATASOURCE_USERNAME:cooperativa_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:super_secret_password}
+  jpa:
+    hibernate:
+      ddl-auto: update # Crea las tablas automáticamente
+    show-sql: true
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    username: ${SPRING_RABBITMQ_USERNAME:admin}
+    password: ${SPRING_RABBITMQ_PASSWORD:admin_password}
